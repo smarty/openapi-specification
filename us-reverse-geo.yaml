@@ -58,13 +58,19 @@ paths:
           in: query
           name: latitude
           required: true
-          description: latitudinal coordinate to begin search
+          description: 'Latitude portion of the coordinate. The latitude must be specified as a decimal between -90.0 and 90.0'
         - schema:
             type: number
           in: query
           name: longitude
           required: true
-          description: longitudinal coordinate to begin search
+          description: 'Longitude portion of the coordinate. The longitude must be specified as a decimal between -180.0 and 180.0'
+        - schema:
+            type: string
+          in: query
+          name: source
+          required: false
+          description: 'Includes all results from alternate data sources. Allowed values are: all - will include non-postal addresses in the results; postal - will limit the results to postal addresses only. If this parameter is used, an additional field named soruce will be returned for each result. Default: postal'
       description: This api runs Smarty's reverse geocoding algorithms to convert latitudinal and longitudinal coordinates into the closest street addresses at lightning speed! Enter your auth-id and auth-token or just a Smarty embedded-key along with your coordinates and you are off!
       security:
         - auth-id: [ ]
@@ -73,37 +79,27 @@ paths:
     parameters: [ ]
 components:
   schemas:
-    Address:
-      type: object
-      examples:
-        - street: 2335 S State St
-          city: Provo
-          state_abbreviation: UT
-          zipcode: '84606'
-      title: Address
-      description: Object containing basic address information
-      properties:
-        street:
-          type: string
-          maxLength: 64
-          description: varchar(64) The street name of this address.
-        city:
-          type: string
-          maxLength: 64
-          description: varchar(64) The city name of this address.
-        state_abbreviation:
-          type: string
-          maxLength: 2
-          description: varchar(2) The state abbreviation of this address.
-        zipcode:
-          type: string
-          maxLength: 5
-          description: varchar(5) The 5-digit ZIP Code of this address.
-      required:
-        - Street
-        - city
-        - state_abbreviation
-        - zipcode
+    Result:
+      title: Result
+      type: array
+      maxLength: 10
+      items:
+        type: object
+        properties:
+          coordinate:
+            $ref: '#/components/schemas/Coordinate'
+            description: Coordinate object containing basic coordinate information
+          distance:
+            type: number
+            examples:
+              - 34.95276
+            description: The distance in meters of this address to the input latitude/longitude values.
+          address:
+            $ref: '#/components/schemas/Address'
+            description: Address object containing basic address information
+        required:
+          - address
+          - coordinate
     Coordinate:
       type: object
       examples:
@@ -154,27 +150,46 @@ components:
         - latitude
         - longitude
         - license
-    Result:
-      title: Result
-      type: array
-      maxLength: 10
-      items:
-        type: object
-        properties:
-          coordinate:
-            $ref: '#/components/schemas/Coordinate'
-            description: Coordinate object containing basic coordinate information
-          distance:
-            type: number
-            examples:
-              - 34.95276
-            description: The distance in meters of this address to the input latitude/longitude values.
-          address:
-            $ref: '#/components/schemas/Address'
-            description: Address object containing basic address information
-        required:
-          - address
-          - coordinate
+    Address:
+      type: object
+      examples:
+        - street: 1476 Sandhill Rd
+          city: Orem
+          state_abbreviation: UT
+          zipcode: '84058'
+      title: Address
+      description: Object containing basic address information
+      properties:
+        street:
+          type: string
+          maxLength: 64
+          description: varchar(64) The street name of this address.
+        city:
+          type: string
+          maxLength: 64
+          description: varchar(64) The city name of this address.
+        state_abbreviation:
+          type: string
+          maxLength: 2
+          description: varchar(2) The state abbreviation of this address.
+        zipcode:
+          type: string
+          maxLength: 5
+          description: varchar(5) The 5-digit ZIP Code of this address.
+        source:
+          type: string
+          maxLength: 6
+          description: This field is only returned if the request contained the source parameter. When it is returned, it indicates the data source for this address. Postal - the address is deliverable by the USPS. Other - the address was obtained from an alternate source (non-postal).
+        smarty_key:
+          type: string
+          maxLength: 10
+          description: Smarty's unique identifier for an address
+      required:
+        - Street
+        - city
+        - state_abbreviation
+        - zipcode
+        - smarty_key
   securitySchemes:
     auth-id:
       name: auth-id
