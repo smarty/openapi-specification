@@ -356,8 +356,7 @@ components:
       in: query
       schema:
         type: string
-        default: 128
-      description: 'A comma-separated list of features. These may require a special plan that allows the feature to be used. EXAMPLE: Feature Value: financial; Description: Return the financial_history attribute. This is applicalbe only to property requests.'
+      description: 'A comma-separated list of features. These may require a special plan that allows the feature to be used. EXAMPLE: Feature Value: financial; Description: Return the financial_history attribute. This is applicalbe only to property requests. Default: 128'
     freeform:
       name: freeform
       in: query
