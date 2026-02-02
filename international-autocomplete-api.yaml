@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: International Address Autocomplete
   version: '0.9'
-  description: "This API...\n\nReturns suggestions that are fully verified global addresses.\nUses fuzzy logic during searching to:\nAllow for missing directionals and street suffixes.\nAllow substitution of street suffixes and secondary designators. E.g., ST is accepted for AVE; APT is accepted for UNIT, etc.\nAllow full or partial spelling of street suffixes and secondary designators. E.g., ST can be spelled as STR or STREET and still match.\nFilters and preferences allow for multiple cities in a single country.\nAllows searching on alternate cities.\nSupports the following 137 countries:\nCountry\tISO3 Alpha-3\nCountry Code\nAlbania\tALB\nAlgeria\tDZA\nAndorra\tAND\nAngola\tAGO\nArgentina\tARG\nAruba\tABW\nAustralia\tAUS\nAustria\tAUT\nAzerbaijan\tAZE\nBahamas\tBHS\nBahrain\tBHR\nBarbados\tBRB\nBelarus\tBLR\nBelgium\tBEL\nBelize\tBLZ\nBenin\tBEN\nBermuda\tBMU\nBolivia\tBOL\nBosnia and Herzegovina\tBIH\nBotswana\tBWA\nBrazil\tBRA\nBrunei Darussalam\tBRN\nBulgaria\tBGR\nBurkina Faso\tBFA\nBurundi\tBDI\nCameroon\tCMR\nCanada\tCAN\nChile\tCHL\nChina\tCHN\nColombia\tCOL\nCongo-Brazzaville\tCOG\nCongo-Kinshasa\tCOD\nCosta-Rica\tCRI\nCroatia\tHRV\nCuba\tCUB\nCyprus\tCYP\nCzech Republic\tCZE\nDenmark\tDNK\nDominican Republic\tDOM\nEcuador\tECU\nEgypt\tEGY\nEl Salvador\tSLV\nEstonia\tEST\nFinland\tFIN\nFrance\tFRA\nGabon\tGAB\nGeorgia\tGEO\nGermany\tDEU\nGhana\tGHA\nGreece\tGRC\nGuatemala\tGTM\nGuyana\tGUY\nHonduras\tHND\nHong Kong\tHKG\nHungary\tHUN\nIceland\tISL\nIndia\tIND\nIndonesia\tIDN\nIraq\tIRQ\nIreland\tIRL\nIsrael\tISR\nItaly\tITA\nJamaica\tJAM\nJapan\tJPN\nJordan\tJOR\nKazakhstan\tKAZ\nKenya\tKEN\nKorea (South)\tKOR\nKosovo\tXKX\nKuwait\tKWT\nLatvia\tLVA\nLebanon\tLBN\nLesotho\tLSO\nLiechtenstein (Territory CHE)\tLIE\nLithuania\tLTU\nLuxembourg\tLUX\nMacau\tMAC\nMacedonia\tMKD\nMalawi\tMWI\nMalaysia\tMYS\nMali\tMLI\nMalta\tMLT\nMauritania\tMRT\nMauritius\tMUS\nMexico\tMEX\nMontenegro\tMNE\nMorocco\tMAR\nMozambique\tMOZ\nNamibia\tNAM\nNetherlands\tNLD\nNew Zealand\tNZL\nNicaragua\tNIC\nNiger\tNER\nNigeria\tNGA\nNorway\tNOR\nOman\tOMN\nPanama\tPAN\nParaguay\tPRY\nPeru\tPER\nPhilippines\tPHL\nPoland\tPOL\nPortugal\tPRT\nQatar\tQAT\nRomania\tROU\nRussia\tRUS\nRwanda\tRWA\nSaint Kitts and Nevis\tKNA\nSaudi Arabia\tSAU\nSenegal\tSEN\nSerbia\tSRB\nSingapore\tSGP\nSlovakia\tSVK\nSlovenia\tSVN\nSouth Africa\tZAF\nSpain\tESP\nSuriname\tSUR\nSwaziland\tSWZ\nSweden\tSWE\nSwitzerland, Liechtenstein\tCHE\nTaiwan\tTWN\nTajikistan\tTJK\nTanzania\tTZA\nThailand\tTHA\nTogo\tTGO\nTrinidad and Tobago\tTTO\nTunisia\tTUN\nTurkey\tTUR\nUganda\tUGA\nUkraine\tUKR\nUnited Arab Emirates\tARE\nUnited Kingdom\tGBR\nUruguay\tURY\nVenezuela\tVEN\nViet Nam\tVNM\nYemen\tYEM\nZambia\tZMB\nZimbabwe\tZWE\n"
+  description: "This API...\n\nReturns suggestions that are fully verified global addresses.\nUses fuzzy logic during searching to:\nAllow for missing directionals and street suffixes.\nAllow substitution of street suffixes and unit designators. E.g., ST is accepted for AVE; APT is accepted for UNIT, etc.\nAllow full or partial spelling of street suffixes and unit designators. E.g., ST can be spelled as STR or STREET and still match.\nFilters and preferences allow for multiple cities in a single country.\nNote: Effective with the adoption of the V2 version of International Address Autocomplete, lookup usage will be based on the final selection of an address rather than per keystroke.\n\nBy default, the character set returned will be the native set for that country. If any latin characters are provided in the input (excluding numerics), the latin set will be returned. Character sets include:\nCyrillic\nGreek\nHebrew\nKanji (Japanese)\nSimplified Chinese\nArabic\nThai\nHangul (Korean)\n\nSupports the following 242 countries: \nAfghanistan\tAFG\nAlbania\tALB\nAlgeria\tDZA\nAndorra\tAND\nAngola\tAGO\nAnguilla\tAIA\nAntarctica\tATA\nAntigua and Barbuda\tATG\nArgentina\tARG\nArmenia\tARM\nAruba\tABW\nAustralia\tAUS\nAustria\tAUT\nAzerbaijan\tAZE\nBahamas\tBHS\nBahrain\tBHR\nBangladesh\tBGD\nBarbados\tBRB\nBelarus\tBLR\nBelgium\tBEL\nBelize\tBLZ\nBenin\tBEN\nBermuda\tBMU\nBhutan\tBTN\nBolivia\tBOL\nBonaire, Sint Eustatius and Saba\tBES\nBosnia and Herzegovina\tBIH\nBotswana\tBWA\nBouvet Island\tBVT\nBrazil\tBRA\nBritish Indian Ocean Territory\tIOT\nBrunei Darussalam\tBRN\nBulgaria\tBGR\nBurkina Faso\tBFA\nBurundi\tBDI\nCambodia\tKHM\nCameroon\tCMR\nCanada\tCAN\nCabo Verde\tCPV\nCayman Islands\tCYM\nCentral African Republic\tCAF\nChad\tTCD\nChile\tCHL\nChina\tCHN\nChristmas Island\tCXR\nCocos (Keeling) Islands\tCCK\nColombia\tCOL\nComoros\tCOM\nCongo\tCOG\nDemocratic Republic of the Congo\tCOD\nCook Islands\tCOK\nCosta Rica\tCRI\nCroatia\tHRV\nCuba\tCUB\nCuraçao\tCUW\nCyprus\tCYP\nCzechia\tCZE\nIvory Coast\tCIV\nDenmark\tDNK\nDjibouti\tDJI\nDominica\tDMA\nDominican Republic\tDOM\nEcuador\tECU\nEgypt\tEGY\nEl Salvador\tSLV\nEquatorial Guinea\tGNQ\nEritrea\tERI\nEstonia\tEST\nEswatini\tSWZ\nEthiopia\tETH\nFalkland Islands\tFLK\nFaroe Islands\tFRO\nFiji\tFJI\nFinland\tFIN\nFrance\tFRA\nFrench Guiana\tGUF\nFrench Polynesia\tPYF\nFrench Southern Territories\tATF\nGabon\tGAB\nGambia\tGMB\nGeorgia\tGEO\nGermany\tDEU\nGhana\tGHA\nGibraltar\tGIB\nGreece\tGRC\nGreenland\tGRL\nGrenada\tGRD\nGuadeloupe\tGLP\nGuatemala\tGTM\nGuernsey\tGGY\nGuinea\tGIN\nGuinea-Bissau\tGNB\nGuyana\tGUY\nHaiti\tHTI\nHeard Island and McDonald Islands\tHMD\nHoly See\tVAT\nHonduras\tHND\nHong Kong\tHKG\nHungary\tHUN\nIceland\tISL\nIndia\tIND\nIndonesia\tIDN\nIslamic Republic of Iran\tIRN\nIraq\tIRQ\nIreland\tIRL\nIsle of Man\tIMN\nIsrael\tISR\nItaly\tITA\nJamaica\tJAM\nJapan\tJPN\nJersey\tJEY\nJordan\tJOR\nKazakhstan\tKAZ\nKenya\tKEN\nKiribati\tKIR\nDemocratic People's Republic of Korea (North Korea)\tPRK\nRepublic of Korea\tKOR\nKosovo\tXKX\nKuwait\tKWT\nKyrgyzstan\tKGZ\nLao People's Democratic Republic\tLAO\nLatvia\tLVA\nLebanon\tLBN\nLesotho\tLSO\nLiberia\tLBR\nLibya\tLBY\nLiechtenstein\tLIE\nLithuania\tLTU\nLuxembourg\tLUX\nMacao\tMAC\nRepublic of North Macedonia\tMKD\nMadagascar\tMDG\nMalawi\tMWI\nMalaysia\tMYS\nMaldives\tMDV\nMali\tMLI\nMalta\tMLT\nMartinique\tMTQ\nMauritania\tMRT\nMauritius\tMUS\nMayotte\tMYT\nMexico\tMEX\nFederated States of Micronesia\tFSM\nRepublic of Moldova\tMDA\nMonaco\tMCO\nMongolia\tMNG\nMontenegro\tMNE\nMontserrat\tMSR\nMorocco\tMAR\nMozambique\tMOZ\nMyanmar\tMMR\nNamibia\tNAM\nNauru\tNRU\nNepal\tNPL\nNetherlands\tNLD\nNew Caledonia\tNCL\nNew Zealand\tNZL\nNicaragua\tNIC\nNiger\tNER\nNigeria\tNGA\nNiue\tNIU\nNorfolk Island\tNFK\nNorway\tNOR\nOman\tOMN\nPakistan\tPAK\nPalau\tPLW\nState of Palestine\tPSE\nPanama\tPAN\nPapua New Guinea\tPNG\nParaguay\tPRY\nPeru\tPER\nPhilippines\tPHL\nPitcairn\tPCN\nPoland\tPOL\nPortugal\tPRT\nQatar\tQAT\nSouth Sudan\tSSD\nRomania\tROU\nRussian Federation\tRUS\nRwanda\tRWA\nRéunion\tREU\nSaint Barthélemy\tBLM\nSaint Helena, Ascension and Tristan da Cunha\tSHN\nSaint Kitts and Nevis\tKNA\nSaint Lucia\tLCA\nSaint Martin\tMAF\nSaint Pierre and Miquelon\tSPM\nSaint Vincent and the Grenadines\tVCT\nSamoa\tWSM\nSan Marino\tSMR\nSao Tome and Principe\tSTP\nSaudi Arabia\tSAU\nSenegal\tSEN\nSerbia\tSRB\nSeychelles\tSYC\nSierra Leone\tSLE\nSingapore\tSGP\nSint Maarten (Dutch)\tSXM\nSlovakia\tSVK\nSlovenia\tSVN\nSolomon Islands\tSLB\nSomalia\tSOM\nSouth Africa\tZAF\nSouth Georgia and the South Sandwich Islands\tSGS\nSpain\tESP\nSri Lanka\tLKA\nSudan\tSDN\nSuriname\tSUR\nSvalbard and Jan Mayen Islands\tSJM\nSweden\tSWE\nSwitzerland\tCHE\nSyrian Arab Republic\tSYR\nTaiwan\tTWN\nTajikistan\tTJK\nUnited Republic of Tanzania\tTZA\nThailand\tTHA\nTimor-Leste\tTLS\nTogo\tTGO\nTokelau\tTKL\nTonga\tTON\nTrinidad and Tobago\tTTO\nTunisia\tTUN\nTürkiye (Turkey)\tTUR\nTurkmenistan\tTKM\nTurks and Caicos Islands\tTCA\nTuvalu\tTUV\nUganda\tUGA\nUkraine\tUKR\nUnited Arab Emirates\tARE\nUnited Kingdom\tGBR\nUruguay\tURY\nUzbekistan\tUZB\nVanuatu\tVUT\nBolivarian Republic of Venezuela\tVEN\nViet Nam\tVNM\nBritish Virgin Islands\tVGB\nWallis and Futuna\tWLF\nWestern Sahara\tESH\nYemen\tYEM\nZambia\tZMB\nZimbabwe\tZWE\nÅland Islands\tALA\n"
   termsOfService: 'https://smartystreets.com/legal/terms-of-service'
   license:
     url: 'https://www.smarty.com/legal/terms-of-service'
@@ -48,36 +48,22 @@ paths:
         - $ref: '#/components/parameters/geolocation'
         - $ref: '#/components/parameters/include_only_locality'
         - $ref: '#/components/parameters/include_only_postal_code'
-        - $ref: '#/components/parameters/latitude'
-        - $ref: '#/components/parameters/longitude'
 components:
   schemas:
     candidate:
       title: candidate
       type: object
       properties:
-        street:
+        entries:
+          type: integer
+        address_text:
           type: string
-        locality:
-          type: string
-        administrative_area:
-          type: string
-        administrative_area_short:
-          type: string
-        administrative_area_long:
-          type: string
-        postal_code:
-          type: string
-        country_iso3:
+        address_id:
           type: string
       examples:
-        - street: 1-123 Main St
-          locality: Fredericton
-          administrative_area: NB
-          administrative_area_short: NB
-          administrative_area_long: New Brunswick
-          postal_code: E3A 1C7
-          country_iso3: CAN
+        - entries: 12
+          address_text: 123 Main St Winnipeg, MB, R3C
+          address_id: PD4DPC8DOjE4AzI9Uig2MTE2Lzo4UjI+NjEgLCtSTk1M
   securitySchemes:
     auth-id:
       type: apiKey
@@ -121,14 +107,14 @@ components:
       required: true
       schema:
         type: string
-      description: 'The ISO3 Alpha-3 country code where the desired address is located. Only uppercase values are allowed. See supported country codes (https://www.smarty.com/docs/cloud/international-address-autocomplete-api#supported-country-codes).   Maximum length is 3 bytes.'
+      description: 'The ISO3 Alpha-3 country code where the desired address is located. Only uppercase values are allowed. See supported country codes (https://www.smarty.com/docs/cloud/international-address-autocomplete-api#supported-country-codes). Maximum length is 3 bytes.'
     search:
       name: search
       in: query
       required: true
       schema:
         type: string
-      description: The part of the address that has already been typed. Maximum length is 128 bytes.
+      description: 'The part of the address that has already been typed. Maximum character count is 32 characters. Required when address ID is not specified in the URL.'
     max_results:
       name: max_results
       in: query
@@ -156,25 +142,11 @@ components:
       required: false
       schema:
         type: string
-      description: 'Limit the results to only the locality provided. A locality is a significant population center (i.e. city, town, or village). Example: Paris'
+      description: 'Limit the results to only the locality provided. A locality is a significant population center (i.e. city, town, or village). When this parameter is used, include_only_postal_code cannot be used. Separate multiple values with a comma. Example: Paris,Versailles'
     include_only_postal_code:
       name: include_only_postal_code
       in: query
       required: false
       schema:
         type: string
-      description: 'Limit the results to only the postal code provided. When this parameter is used, no include_only_administrative_area and/or include_only_locality parameters can be used.  Example: 29200'
-    latitude:
-      name: latitude
-      in: query
-      required: false
-      schema:
-        type: string
-      description: 'Limit the results to the surrounding area specified by latitude and longitude. See also distance  Example: -2.0234 This must be used with the longitude parameter.'
-    longitude:
-      name: longitude
-      in: query
-      required: false
-      schema:
-        type: string
-      description: 'Limit the results to the surrounding area specified by latitude and longitude. See also distance  Example: 44.0234 This must be used with the latitude parameter.'
+      description: 'Limit the results to only the postal codes provided. When this parameter is used, include_only_locality cannot be used. Separate multiple values with a comma. Example: 29200,29201'
