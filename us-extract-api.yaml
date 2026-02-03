@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: US-Extract-API
   description: |
-    So you don't like playing 'Wheres Waldo' to find addresses in sentences, the SmartyStreets US-Extract RESTful API has your back. 
+    So you don't like playing 'Wheres Waldo' to find addresses in sentences? The SmartyStreets US-Extract RESTful API has your back. 
   termsOfService: 'https://www.smarty.com/legal/terms-of-service'
   license:
     url: 'https://www.smarty.com/legal/terms-of-service'
@@ -47,6 +47,8 @@ paths:
           description: Payment Required
         '413':
           description: Request Entity Too Large
+        '422':
+          description: Unprocessable Entity
         '429':
           description: Too Many Requests
       parameters:
@@ -67,6 +69,20 @@ tags:
     description: Find an address in a sentence
 components:
   parameters:
+    Host:
+      name: Host
+      in: header
+      required: true
+      schema:
+        type: string
+      description: 'The Host request header field specifies the internet host and port number of the resource being requested. Ex: Host: us-extract.api.smarty.com'
+    Content-Type:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+      description: 'The purpose of the Content-Type field is to describe the data contained in the body fully enough that the receiving user agent can pick an appropriate agent or mechanism to present the data to the user, or otherwise deal with the data in an appropriate manner. Ex: Content-Type: text/plain; charset=utf-8'
     html:
       name: html
       in: query
@@ -101,27 +117,14 @@ components:
       required: false
       schema:
         type: string
+      description: 'Specifies the license or licenses (comma separated) to use for this lookup. Valid values cn be found in your Subscriptions Page. If multiple licenses are specified, they are considered to be in left to right order. As a default, this value is derived.'
     match:
       name: match
       in: query
       required: false
       schema:
         type: string
-      description: 'The match output strategy to be employed for this lookup. See more here: https://www.smarty.com/docs/cloud/us-street-api#match'
-    Content-Type:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-      description: 'The purpose of the Content-Type field is to describe the data contained in the body fully enough that the receiving user agent can pick an appropriate agent or mechanism to present the data to the user, or otherwise deal with the data in an appropriate manner. Ex: Content-Type: text/plain; charset=utf-8'
-    Host:
-      name: Host
-      in: header
-      required: true
-      schema:
-        type: string
-      description: 'The Host request header field specifies the internet host and port number of the resource being requested. Ex: Host: us-extract.api.smarty.com'
+      description: 'The match output strategy to be employed for this lookup. See more here: https://www.smarty.com/docs/cloud/us-street-api#match. Default: strict'
   schemas:
     '200':
       title: Successful response
@@ -185,31 +188,18 @@ components:
           example: 49
         api_output:
           type: array
-          description: The response from the US Street API
+          description: The actual response from the US Street API
           items:
             $ref: '#/components/schemas/APIOutput'
     APIOutput:
       title: APIOutput
       type: object
       properties:
-        input_id:
-          type: string
-          maxLength: 36
-          description: Any unique identifier that you use to reference the input address; the output will be identical to the input.
-        input_index:
-          type: integer
-          description: |-
-            The order in which this address was submitted with the others
-            (0 if alone)
         candidate_index:
           type: integer
           description: |-
             An input address can match multiple valid addresses. This ties the candidates to the input index. 
             (e.g., "1 Rosedale Street Baltimore Maryland" will return multiple candidates.)
-        addressee:
-          type: string
-          description: 'The name of the person or company at this address. This value is taken directly from the addressee input field. Very rarely, this field might be filled automatically based on the USPS address record.'
-          maxLength: 50
         delivery_line_1:
           type: string
           description: |-
@@ -227,10 +217,6 @@ components:
             PMB designator
             PMB number
           maxLength: 50
-        delivery_line_2:
-          type: string
-          description: 'The second delivery line (if needed). It is common for this field to remain empty, but it may contain a private mailbox number.'
-          maxLength: 50
         last_line:
           type: string
           description: 'City, state, and ZIP Code combined'
@@ -239,10 +225,6 @@ components:
           type: string
           description: '12-digit POSTNET™ barcode; consists of 5-digit ZIP Code, 4-digit add-on code, 2-digit delivery point, and 1-digit check digit.'
           maxLength: 12
-        smarty_key:
-          type: string
-          description: "Smarty's unique identifier for an address. This identifier will only be displayed when an address is submitted with the match parameter set to 'enhanced,' with an appropriate product subscription."
-          maxLength: 10
         components:
           $ref: '#/components/schemas/ComponentsObject'
         metadata:
@@ -254,10 +236,6 @@ components:
       type: object
       description: Object representing the different components of a verified address
       properties:
-        urbanization:
-          type: string
-          maxLength: 64
-          description: 'The neighborhood, or city subdivision; used with Puerto Rican addresses'
         primary_number:
           type: string
           description: 'The house, PO Box, or building number'
@@ -266,53 +244,13 @@ components:
           type: string
           description: The name of the street
           maxLength: 64
-        street_predirection:
-          type: string
-          maxLength: 16
-          description: 'Directional information before a street name (N, SW, etc.)'
-        street_postdirection:
-          type: string
-          description: 'Directional information after a street name (N, SW, etc.)'
-          maxLength: 16
         street_suffix:
           type: string
           description: 'Abbreviated value describing the street (St, Ave, Blvd, etc.)'
           maxLength: 16
-        secondary_number:
-          type: string
-          description: 'Apartment or suite number, if any'
-          maxLength: 32
-        secondary_designator:
-          type: string
-          description: 'Describes location within a complex/building (Ste, Apt, etc.)'
-          maxLength: 16
-        extra_secondary_number:
-          type: string
-          description: |-
-            Descriptive information about the location of a building within a campus 
-            (e.g., E-5 in "5619 Loop 1604, Bldg E-5, Ste. 101 San Antonio TX")
-          maxLength: 32
-        extra_secondary_designator:
-          type: string
-          description: |-
-            Description of the location type within a campus 
-            (e.g., Bldg, Unit, Lot, etc.)
-          maxLength: 16
-        pmb_designator:
-          type: string
-          description: 'The private mailbox unit designator, assigned by a CMRA'
-          maxLength: 16
-        pmb_number:
-          type: string
-          description: 'The private mailbox number, assigned by a CMRA'
-          maxLength: 16
         city_name:
           type: string
           description: 'The USPS-preferred city name for this particular address, or an acceptable alternate if provided by the user'
-          maxLength: 64
-        default_city_name:
-          type: string
-          description: The default city name for this 5-digit ZIP Code
           maxLength: 64
         state_abbreviation:
           type: string
@@ -375,14 +313,6 @@ components:
           type: string
           maxLength: 5
           description: The name of the county in which the address is located
-        ews_match:
-          type: string
-          maxLength: 5
-          description: |-
-            Early warning system flag; a positive result indicates the street of the address is not yet ready for mail delivery and that the address will soon be added to the master ZIP+4 file in the coming weeks or months. This commonly occurs for new streets or streets undergoing a name change. 
-
-            true — The address was flagged by EWS, preventing a ZIP+4 match.
-            [blank] — Address was not flagged by EWS.
         carrier_route:
           type: string
           maxLength: 4
@@ -401,14 +331,6 @@ components:
           type: string
           maxLength: 2
           description: 'The congressional district to which the address belongs. Output will be two digits from 01 - 53 or "AL." "AL" means that the entire state (or territory) is covered by a single congressional district. These include Alaska, Delaware, Montana, North Dakota, South Dakota, Vermont, Wyoming, Washington DC, Virgin Islands, and other territories.'
-        building_default_indicator:
-          type: string
-          maxLength: 1
-          description: |-
-            Indicates whether the address is the "default" address for a building; for example, the main lobby 
-
-            Y — Yes
-            N — No
         rdi:
           type: string
           maxLength: 12
@@ -439,9 +361,6 @@ components:
         longitude:
           type: number
           description: 'The vertical component used for geographic positioning. It is the angle between 0° (the Prime Meridian) and ±180° (westward or eastward). It is the second number in an ordered pair of (latitude, longitude). A negative number indicates a location west of Greenwich, England; a positive number east. Combining lat/long values enables you to pinpoint addresses on a map.'
-        coordinate_license:
-          type: integer
-          description: The license ID for the geographic coordinate returned. See the licensing table below for more details.
         precision:
           type: string
           maxLength: 18
@@ -571,15 +490,6 @@ components:
             Y — Address is vacant.
             N — Address is not vacant.
             [blank] — Address was not submitted for vacancy verification.
-        dpv_no_stat:
-          type: string
-          maxLength: 1
-          description: |-
-            Indicates that a delivery point is listed as "no-stat" by the USPS. Technically, that means the USPS is temporarily declaring the address undeliverable. In practice, however, the USPS is often several months behind in removing addresses from the "no-stat" list, so only rely on this data point if you are fully aware of its weaknesses and limitations. 
-
-            Y — USPS lists the address as "no-stat."
-            N — USPS does not list the address as "no-stat."
-            [blank] — Address was not submitted for "no-stat" verification.
         active:
           type: string
           maxLength: 1
@@ -588,49 +498,6 @@ components:
           type: string
           maxLength: 12
           description: 'Indicates which changes were made to the input address. Footnotes are delimited by a # character. See the footnotes table below for details.'
-        lacslink_code:
-          type: string
-          maxLength: 2
-          description: |-
-            The reason for the LACSLink indication that was given (below) 
-
-            A — Match: Address provided. LACSLink record match was found, and a converted address was provided.
-            00 — No Match. No converted address. No soup for you!
-            09 — Match: No new address. LACSLink matched an input address to an old address which is a "high-rise default" address; no new address was provided.
-            14 — Match: No conversion. Found a LACSLink record, but couldn't convert the data to a deliverable address.
-            92 — Match: Dropped secondary number. LACSLink record was matched after dropping the secondary number from input.
-            [blank] — No LACSLink lookup attempted.
-        lacslink_indicator:
-          type: string
-          maxLength: 1
-          description: |-
-            Indicates whether there is an address match in the LACSLink database. 
-
-            Y — LACS record match; a new address could be furnished because the input record matched a record in the master file.
-            S — LACS record - secondary number dropped; the record is a ZIP+4 street level or high-rise match. The input record matched a master file record, but the input address had a secondary number and the master file record did not.
-            N — No match; a new address could not be furnished; the input record could not be matched to a record in the master file.
-            F — False positive; a false positive record was detected.
-            [blank] — No LACSLink lookup attempted.
-        suitelink_match:
-          type: string
-          maxLength: 5
-          description: |-
-            Indicates a match (or not) to the USPS SuiteLink data. SuiteLink attempts to provide secondary information such as "suite" or "apartment" whenever there is a match based on address and company name. 
-
-            true — There was a SuiteLink match and the result is provided.
-            false — There was no SuiteLink match.
-        enhanced_match:
-          type: string
-          maxLength: 64
-          description: |-
-            When an address is submitted with the match parameter set to "enhanced," this field will contain additional information about the result. Multiple values may be present, separated by commas. Additional values will be added from time to time. The current possible values are:
-              
-              none — No address match was found.
-              non-postal-match — A match was found within additional, non-postal address data.
-              postal-match — A match was found within postal address data.
-              missing-secondary — The address should have a secondary (e.g., apartment), but none was found in the input.
-              unknown-secondary — The provided secondary information did not match a known secondary within the address data.
-              ignored-input — The provided input contained information that was not used for a match.
       description: Object representing the different metadata of a verified address
   securitySchemes:
     auth_id:
