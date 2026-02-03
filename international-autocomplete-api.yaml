@@ -11,7 +11,7 @@ info:
     name: Smarty Support
     email: support@smartystreets.com
 servers:
-  - url: 'https://international-autocomplete.api.smarty.com'
+  - url: 'https://international-autocomplete.api.smarty.com/v2/lookup[/{address_id}]'
 externalDocs:
   description: Extensive documentation for the International Address Autocomplete API
   url: 'https://www.smarty.com/docs/cloud/international-address-autocomplete-api'
