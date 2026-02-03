@@ -80,6 +80,7 @@ paths:
         - $ref: '#/components/parameters/match'
         - $ref: '#/components/parameters/format'
         - $ref: '#/components/parameters/county_source'
+        - $ref: '#/components/parameters/features'
     post:
       summary: Multiple Address Validation
       tags:
@@ -92,6 +93,18 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/SuccessfulResponse'
+        '400':
+          description: 'Bad Request (Malformed Payload): A GET request lacked a street field, or the request body of a POST request contained malformed JSON. (example: submitting an integer value in the ZIP Code field when a string is expected)'
+        '401':
+          description: 'Unauthorized: The credentials were provided incorrectly or did not match any existing, active credentials.'
+        '402':
+          description: 'Payment Required: There is no active subscription for the account associated with the credentials submitted with the request.'
+        '413':
+          description: 'Request Entity too large: The maxmimum size for a request body to this API is 32K (32,768 bytes).'
+        '422':
+          description: 'Unprocessable entity: A POST request lacked a street field.'
+        '429':
+          description: 'Too Many Requests: When using public embedded key authentication, we restrict the number of requests coming from a given source over too short of a time. If you use embedded key authentication, you can avoid this error by adding your IP address as an authorized host for the embedded key in question.'
       description: | 
         A POST request allows a larger volume of data (MAX: 100 addresses or 32K per request) to be sent in the HTTP Request Body. In this case, the data should be encoded as a JSON array where each element in the array is a JSON object with field names identical to those in the field listing below. Here's a sample request with two addresses being sent (line breaks added for readability):
         ```bash
@@ -224,6 +237,10 @@ components:
       description: 'The authoritative source to be used for the county information of the address. Valid values are: postal  The API will return county information based on the postal delivery information of the address. This is the default option. geographic  The API will return county information based on the physical location of the address.'
       schema:
         type: string
+    features:  
+      description: 'Component Analysis is available in the US Address Verification 42-day Free Trial and certain custom plans. If you have a subscription that allows for component analysis details, to return the component analysis details include the features parameters as features=components-analysis.'
+      schema:
+        type: string
   schemas:
     Root:
       title: Response Component
@@ -287,6 +304,8 @@ components:
           $ref: '#/components/schemas/Metadata'
         analysis:
           $ref: '#/components/schemas/Analysis'
+        component-analysis:
+          $ref: '#/components/schemas/Component-Analysis'
     Components:
       title: Components
       type: object
@@ -585,6 +604,8 @@ components:
 
             Here are some common combinations:
             AABB - ZIP, state, city, street name, and primary number match.
+            AABBCC - ZIP, state, city, street name, and primary number match, but secondary does not. A secondary is NOT required for delivery.
+            AAC1 - ZIP, state, city, street name, and primary number match, but secondary does not. A secondary is required for delivery.
             AAM1 - ZIP, state, city, and street name match, but the primary number is missing.
             AAM3 - ZIP, state, city, and street name match, but the primary number is invalid.
             AAN1 - ZIP, state, city, street name, and primary number match, but there is secondary information such as apartment or suite that would be helpful.
@@ -668,6 +689,27 @@ components:
             unknown-secondary — The provided secondary information did not match a known secondary within the address data.
             ignored-input — The provided input contained information that was not used for a match.
       description: Object representing the different metadata of a verified address
+    Component-Analysis:
+      title: Component-Analysis
+      type: object
+      properties:
+        status:
+          type: string
+          description: |-
+            Indicates the match classification of the given component.
+            confirmed - This indicates taht the component is valid in the returned response.
+            unconfirmed - This indicates taht the component was derived from the input, but is not a confirmed component of a fully matched address. For example, a match to a root address may contain an unconfirmed secondary. In this case, the secondary number and designator will show "unconfirmed" as their status.
+            missing - This indicates that the component is required for a fully validated response. This is most common in cases where secondary address components are required for delivery.
+        change:
+          type: string
+          description: |-
+            Indicates the change that Smarty performed on the input component.
+            abbreviation - The component was changed according to standard abbreviation rules. This is common in cases like direcitonals (NORTH -> N) and suffixes (STREET -> ST).
+            replaced - The input had a valid option for this component, but it was replaced for the correct component information. This value is only possible in components where there is a set number of valid options, such as: street_predirection, street_suffix, street_postdirection, secondary_designator, zipcode.
+            spelling - The input was corrected according to spelling rules.
+            added - The component was added as a result.
+            alias - Based on authoritative sources, the preferred value is returned.
+      description: When the features=component-analysis parameter is specified, component analysis details will be returned and can be applied to multiple addresses.
     RequestObject:
       type: object
       x-examples:
@@ -762,6 +804,9 @@ components:
             The authoritative source to be used for the county information of the address. Valid values are:
             postal  The API will return county information based on the postal delivery information of the address. This is the default option.
             geographic  The API will return county information based on the physical location of the address.
+        features:
+          type: string
+            description: Component Analysis is available in the US Address Verification 42-day Free Trial and certain custom plans. If you have a subscription that allows for component analysis details, to return the component analysis details include the features parameters as features=components-analysis. Component analysis details can be applied to multiple addresses.
       description: |-
         Each address submitted must have non-blank values for one of the following field combinations to be eligible for a positive address match:
 
