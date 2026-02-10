@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: US-Extract-API
   description: |
-    So you don't like playing 'Wheres Waldo' to find addresses in sentences, the SmartyStreets US-Extract RESTful API has your back. 
+    So you don't like playing 'Wheres Waldo' to find addresses in sentences? The SmartyStreets US-Extract RESTful API has your back. 
   termsOfService: 'https://www.smarty.com/legal/terms-of-service'
   license:
     url: 'https://www.smarty.com/legal/terms-of-service'
@@ -47,6 +47,8 @@ paths:
           description: Payment Required
         '413':
           description: Request Entity Too Large
+        '422':
+          description: Unprocessable Entity
         '429':
           description: Too Many Requests
       parameters:
@@ -67,6 +69,20 @@ tags:
     description: Find an address in a sentence
 components:
   parameters:
+    Host:
+      name: Host
+      in: header
+      required: true
+      schema:
+        type: string
+      description: 'The Host request header field specifies the internet host and port number of the resource being requested. Ex: Host: us-extract.api.smarty.com'
+    Content-Type:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+      description: 'The purpose of the Content-Type field is to describe the data contained in the body fully enough that the receiving user agent can pick an appropriate agent or mechanism to present the data to the user, or otherwise deal with the data in an appropriate manner. Ex: Content-Type: text/plain; charset=utf-8'
     html:
       name: html
       in: query
@@ -101,27 +117,14 @@ components:
       required: false
       schema:
         type: string
+      description: 'Specifies the license or licenses (comma separated) to use for this lookup. Valid values cn be found in your Subscriptions Page. If multiple licenses are specified, they are considered to be in left to right order. As a default, this value is derived.'
     match:
       name: match
       in: query
       required: false
       schema:
         type: string
-      description: 'The match output strategy to be employed for this lookup. See more here: https://www.smarty.com/docs/cloud/us-street-api#match'
-    Content-Type:
-      name: Content-Type
-      in: header
-      required: true
-      schema:
-        type: string
-      description: 'The purpose of the Content-Type field is to describe the data contained in the body fully enough that the receiving user agent can pick an appropriate agent or mechanism to present the data to the user, or otherwise deal with the data in an appropriate manner. Ex: Content-Type: text/plain; charset=utf-8'
-    Host:
-      name: Host
-      in: header
-      required: true
-      schema:
-        type: string
-      description: 'The Host request header field specifies the internet host and port number of the resource being requested. Ex: Host: us-extract.api.smarty.com'
+      description: 'The match output strategy to be employed for this lookup. See more here: https://www.smarty.com/docs/cloud/us-street-api#match. Default: strict'
   schemas:
     '200':
       title: Successful response
@@ -185,7 +188,7 @@ components:
           example: 49
         api_output:
           type: array
-          description: The response from the US Street API
+          description: The actual response from the US Street API
           items:
             $ref: '#/components/schemas/APIOutput'
     APIOutput:
@@ -209,39 +212,39 @@ components:
         addressee:
           type: string
           description: 'The name of the person or company at this address. This value is taken directly from the addressee input field. Very rarely, this field might be filled automatically based on the USPS address record.'
-          maxLength: 50
+          maxLength: 64
         delivery_line_1:
           type: string
           description: |-
             Contains the first delivery line (usually the street address). This can include any of the following: 
-            urbanization (Puerto Rico only)
-            primary number
-            street predirection
-            street name
-            street suffix
-            street postdirection
-            secondary designator
-            secondary number
-            extra secondary designator
-            extra secondary number
-            PMB designator
-            PMB number
-          maxLength: 50
+            - urbanization (Puerto Rico only)
+            - primary number
+            - street predirection
+            - street name
+            - street suffix
+            - street postdirection
+            - secondary designator
+            - secondary number
+            - extra secondary designator
+            - extra secondary number
+            - PMB designator
+            - PMB number
+          maxLength: 64
         delivery_line_2:
           type: string
           description: 'The second delivery line (if needed). It is common for this field to remain empty, but it may contain a private mailbox number.'
-          maxLength: 50
+          maxLength: 64
         last_line:
           type: string
           description: 'City, state, and ZIP Code combined'
-          maxLength: 50
+          maxLength: 64
         delivery_point_barcode:
           type: string
           description: '12-digit POSTNET™ barcode; consists of 5-digit ZIP Code, 4-digit add-on code, 2-digit delivery point, and 1-digit check digit.'
           maxLength: 12
         smarty_key:
           type: string
-          description: "Smarty's unique identifier for an address. This identifier will only be displayed when an address is submitted with the match parameter set to 'enhanced,' with an appropriate product subscription."
+          description: "Smarty's unique identifier for an address. This identifier will only be displayed when an address is submitted with the match parameter set to enhanced, with an appropriate product subscription."
           maxLength: 10
         components:
           $ref: '#/components/schemas/ComponentsObject'
@@ -446,18 +449,18 @@ components:
           type: string
           maxLength: 18
           description: |-
-            Indicates the precision of the latitude and longitude values.
+            Indicates the precision of the latitude and longitude values. 
 
             Unknown — Coordinates not known. Reasons could include: address is invalid, military address (APO or FPO), lat/lon coordinates not available.
-              Zip5 — Accurate to a 5-digit ZIP Code level (least precise)
-              Zip6 — Accurate to a 6-digit ZIP Code level
-              Zip7 — Accurate to a 7-digit ZIP Code level
-              Zip8 — Accurate to an 8-digit ZIP Code level
-              Zip9 — Accurate to a 9-digit ZIP Code level (most precise with the basic subscription)
-              Street — Accurate to a position along the street proportional to the house/building number.
-              Parcel — Accurate to the centroid of a property parcel. Requires the US Rooftop Geocoding subscription.
-              Rooftop — Accurate to the rooftop of a structure for this address. Requires the US Rooftop Geocoding subscription.
-            
+            Zip5 — Accurate to a 5-digit ZIP Code level (least precise)
+            Zip6 — Accurate to a 6-digit ZIP Code level
+            Zip7 — Accurate to a 7-digit ZIP Code level
+            Zip8 — Accurate to an 8-digit ZIP Code level
+            Zip9 — Accurate to a 9-digit ZIP Code level (most precise with the basic subscription)
+            Street — Accurate to a position along the street proportional to the house/building number.
+            Parcel — Accurate to the centroid of a property parcel. Requires the US Rooftop Geocoding subscription.
+            Rooftop — Accurate to the rooftop of a structure for this address. Requires the US Rooftop Geocoding subscription.
+
             Note: Concerning addresses for which the ZIP9 precision is not available, the ZIP# precision is interpolated based on neighboring addresses. Thus, ZIP7 is an average of all the lat/long coordinates of nearby ZIP Codes that share those first 7 digits.
         time_zone:
           type: string
@@ -492,14 +495,14 @@ components:
           type: string
           maxLength: 1
           description: |-
-            Status of the Delivery Point Validation (DPV). This indicates whether or not the address is present in the USPS data.
-            
-            Y — Confirmed; entire address is present in the USPS data. (To be certain the address is actually deliverable, verify that the dpv_vacant field has a value of N. You may also want to verify that the dpv_no_stat field has a value of N. However, the USPS is often several months behind in updating this data point, so only rely on the dpv_no_stat data if you are fully aware of its weaknesses and limitations.)
+            Status of the Delivery Point Validation (DPV). This indicates whether or not the address is present in the USPS data. 
+
+            Y — Confirmed; entire address is present in the USPS data. (To be certain the address is actually deliverable, verify that the dpv_vacant field has a value of N. You may also want to verify that the dpv_no_stat field has a value of N. However, the USPS is often several months behind in updating this data point, so only rely on the dpv_no_stat data if you are fully aware of its weaknesses and limitations.) 
             (e.g., 1600 Amphitheatre Pkwy Mountain View, CA)
             N — Not confirmed; address is not present in the USPS data.
-            S — Confirmed by ignoring secondary info; the main address is present in the USPS data, but the submitted secondary information (apartment, suite, etc.) was not recognized.
+            S — Confirmed by ignoring secondary info; the main address is present in the USPS data, but the submitted secondary information (apartment, suite, etc.) was not recognized. 
             (e.g., 62 Ea Darden Dr Apt 298 Anniston, AL)
-            D — Confirmed but missing secondary info; the main address is present in the USPS data, but it is missing secondary information (apartment, suite, etc.).
+            D — Confirmed but missing secondary info; the main address is present in the USPS data, but it is missing secondary information (apartment, suite, etc.). 
             (e.g., 122 Mast Rd Lee, NH)
             [blank or null] — The address is not present in the USPS database.
         dpv_footnotes:
@@ -507,7 +510,7 @@ components:
           maxLength: 32
           description: |-
             Information related to the delivery point validation of this address. All these footnotes have a length of 2 characters, and there may be up to 14 footnotes.
-            
+
             AA — Street name, city, state, and ZIP are all valid.
             (e.g., 2335 S State St Ste 300 Provo UT)
             A1 — Address not present in USPS data.
@@ -526,7 +529,7 @@ components:
             (e.g., N University Ave Provo UT)
             M3 — Primary number (e.g., house number) is invalid.
             (e.g., 16 N University Ave Provo UT)
-            N1 — Address is missing secondary information (apartment, suite, etc.) which IS REQUIRED for delivery..
+            N1 — Address is missing secondary information (apartment, suite, etc.).
             (e.g., 2335 S State St Provo UT)
             PB — PO Box street style address.
             (e.g., 555 S B B King Blvd Unit 1 Memphis TN 38103)
@@ -544,15 +547,15 @@ components:
             (e.g., 4-C PENINSULA CTR RANCHO PALOS VERDES CA 90274)
             U1 — Address has a "unique" ZIP Code.
             (e.g., 100 North Happy Street 12345)
-          
+
             Here are some common combinations:
-              AABB - ZIP, state, city, street name, and primary number match.
-              AABBCC - ZIP, state, city, street name, and primary number match, but secondary does not. A secondary is not required for delivery.
-              AAC1 - ZIP, state, city, street name, and primary number match, but secondary does not. A secondary is required for delivery.
-              AAM1 - ZIP, state, city, and street name match, but the primary number is missing.
-              AAM3 - ZIP, state, city, and street name match, but the primary number is invalid.
-              AAN1 - ZIP, state, city, street name, and primary number match, but there is secondary information such as apartment or suite that would be helpful.
-              AABBR1 - ZIP, state, city, street name, and primary number match. Address confirmed without private mailbox (PMB) info.
+            AABB - ZIP, state, city, street name, and primary number match.
+            AABBCC - ZIP, state, city, street name, and primary number match, but secondary does not. A secondary is NOT required for delivery.
+            AAC1 - ZIP, state, city, street name, and primary number match, but secondary does not. A secondary is required for delivery.
+            AAM1 - ZIP, state, city, and street name match, but the primary number is missing.
+            AAM3 - ZIP, state, city, and street name match, but the primary number is invalid.
+            AAN1 - ZIP, state, city, street name, and primary number match, but there is secondary information such as apartment or suite that would be helpful.
+            AABBR1 - ZIP, state, city, street name, and primary number match. Address confirmed without private mailbox (PMB) info.
         dpv_cmra:
           type: string
           maxLength: 1
@@ -624,13 +627,13 @@ components:
           maxLength: 64
           description: |-
             When an address is submitted with the match parameter set to "enhanced," this field will contain additional information about the result. Multiple values may be present, separated by commas. Additional values will be added from time to time. The current possible values are:
-              
-              none — No address match was found.
-              non-postal-match — A match was found within additional, non-postal address data.
-              postal-match — A match was found within postal address data.
-              missing-secondary — The address should have a secondary (e.g., apartment), but none was found in the input.
-              unknown-secondary — The provided secondary information did not match a known secondary within the address data.
-              ignored-input — The provided input contained information that was not used for a match.
+
+            none — No address match was found.
+            non-postal-match — A match was found within additional, non-postal address data.
+            postal-match — A match was found within postal address data.
+            missing-secondary — The address should have a secondary (e.g., apartment), but none was found in the input.
+            unknown-secondary — The provided secondary information did not match a known secondary within the address data.
+            ignored-input — The provided input contained information that was not used for a match.
       description: Object representing the different metadata of a verified address
   securitySchemes:
     auth_id:

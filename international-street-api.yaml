@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: International Address Verification API
   version: '3.3'
-  description: ''
+  description: 'This API verifies international addresses'
   termsOfService: 'https://smartystreets.com/legal/terms-of-service'
   license:
     url: 'https://www.smarty.com/legal/terms-of-service'
@@ -34,8 +34,6 @@ paths:
           $ref: '#/components/responses/401'
         '402':
           $ref: '#/components/responses/402'
-        '403':
-          $ref: '#/components/responses/403'
         '422':
           $ref: '#/components/responses/422'
         '429':
@@ -74,6 +72,7 @@ paths:
         - $ref: '#/components/parameters/administrative_area'
         - $ref: '#/components/parameters/postal_code'
         - $ref: '#/components/parameters/license'
+        - $ref: '#/components/parameters/features'
 components:
   schemas:
     Root:
@@ -111,6 +110,9 @@ components:
         country_iso_3:
           type: string
           description: 'The ISO 3166-1 alpha-3 country code. See https://www.smarty.com/docs/cloud/international-street-api#countries for details.'
+        attention:
+          type: string
+          description: 'The name of the recipient, firm, or company at this address. This is the same value as the organization field.'
         administrative_area:
           type: string
           description: |-
@@ -314,10 +316,22 @@ components:
       properties:
         latitude:
           type: number
-          description: 'The horizontal component used for geographic positioning; it is the angle between 0° (the equator) and ±90° (north or south) at the poles measured in decimal degrees. It is the first value in an ordered pair of latitude, longitude. A negative number denotes a location south of the equator; a positive number is north. Combining lat/long values enables you to pinpoint addresses on a map.'
+          description: 'The horizontal component used for geographic positioning; ***based on the WGS84 coordinate system*** it is the angle between 0° (the equator) and ±90° (north or south) at the poles measured in decimal degrees. It is the first value in an ordered pair of latitude, longitude. A negative number denotes a location south of the equator; a positive number is north. Combining lat/long values enables you to pinpoint addresses on a map.'
         longitude:
           type: number
-          description: 'The vertical component used for geographic positioning; it is the angle between 0° (the Prime Meridian) and ±180° (westward or eastward) measured in decimal degrees. It is the second number in an ordered pair of (latitude, longitude). A negative number indicates a location west of Greenwich, England; a positive number east. Combining lat/long values enables you to pinpoint addresses on a map.'
+          description: 'The vertical component used for geographic positioning; ***based on the WGS84 coordinate system*** it is the angle between 0° (the Prime Meridian) and ±180° (westward or eastward) measured in decimal degrees. It is the second number in an ordered pair of (latitude, longitude). A negative number indicates a location west of Greenwich, England; a positive number east. Combining lat/long values enables you to pinpoint addresses on a map.'
+        geocode_classificiation:
+          type: string
+          description: |-
+            Provides additional information about the returned geocode.
+
+            single-point - Returned a single matching geocode
+
+            multiple-point-average - The output address matched several geocodes. To provide a single result, we calculated and returned the average coordinate of those points.
+
+            interpolated - Returned a geocode that was interpolated from a range of addresses near the returned address.
+
+            This data will only be returned when the feature is requested.
         geocode_precision:
           type: string
           description: |-
@@ -331,9 +345,9 @@ components:
 
             Thoroughfare — Geocode is accurate down to the thoroughfare (i.e., street).
 
-            Premise — Geocode is accurate down to a range of addresses on the specified street (i.e., building, block level or street segment).
+            Premise — Geocode is accurate to the actual delivery point (i.e., house, mailbox, or apartment).
 
-            DeliveryPoint — Geocode is accurate to the actual delivery point (i.e., house, mailbox or apartment).
+            * Must be enabled by sending the geocode-precision-enhanced feature flag. Only available in CAN and GBR.
         max_geocode_precision:
           type: string
           description: Indicates the best geocode_precision available for the input country.
@@ -355,7 +369,17 @@ components:
             Address 3: postal_code locality
             For native languages that do not use spaces between words, the corresponding component fields will also not have spaces between them.
 
-            The address_format field will not be present for US addresses. Here's some additional info on the composition of US addresses.
+            This field may not be present in the following cases:
+            1. When we could not understand the input sufficiently to generate a value.
+            2. For US addresses it willl never be present.
+        occupant_use:
+          type: string
+          description: |-
+            (Canada, Australia, Belgium, Great Britain) Indicates if the property is Residential or Commercial.
+
+            This data will be returned only when the feature is requested.
+
+            Possible values: "residential","commercial","residential,commercial"
     Analysis:
       title: Analysis
       type: object
@@ -367,7 +391,7 @@ components:
 
             None — Not verified. The output fields will contain the input data.
 
-            Partial — Verification only at the level indicated by address_precision. (Better input might result in a better match.)
+            Partial — Verification only at the level indicated by address_precision. For some countries whose maximum precision level is less than DeliveryPoint or Premise, this may be the best verification status you may receive. Otherwise, better input might result in a better match.
 
             Ambiguous — Multiple matching addresses found. Each candidate address will have its own precision level. A common "ambiguous" scenario is that the output will contain two versions of the same address — one with an organization name and one without.
 
@@ -394,14 +418,6 @@ components:
         changes:
           $ref: '#/components/schemas/Changes'
           description: 'Contains a collection of address components paired with values which specify the difference between corresponding input/lookup and output/candidate data. See the explanation of possible Changes here: https://www.smarty.com/docs/cloud/international-street-api#changes'
-        organization:
-          type: string
-          description: 'If present, the degree of change to the name of the recipient, firm, or company at this address.'
-        address1-12:
-          type: string
-          description: 'If present, these fields show the degree of change to each of the address lines.'
-        components:
-          $ref: '#/components/schemas/Components'
     Changes:
       title: Changes
       type: object
@@ -460,8 +476,6 @@ components:
       description: 'Unauthorized: The credentials were provided incorrectly or did not match any existing, active credentials.'
     '402':
       description: 'Payment Required: There is no active subscription for the account associated with the credentials submitted with the request.'
-    '403':
-      description: 'Forbidden: Because the international service is currently in a limited release phase, only approved accounts may access the service. Please contact us for your account to be granted access.'
     '422':
       description: 'Unprocessable Entity: A GET request lacked required fields.'
     '429':
@@ -543,7 +557,7 @@ components:
       required: false
       schema:
         type: string
-      description: The forth address line (if any)
+      description: The fourth address line (if any)
     organization:
       name: organization
       in: query
@@ -579,3 +593,10 @@ components:
       schema:
         type: string
       description: 'The license or licenses (comma separated) to use for this lookup. Valid values can be found in the account dashboard under the appropriate subscription. If multiple licenses are specified, they are considered in left to right order. We recommend that each request explicitly specify a license value. For more information see License Selection.'
+    features:
+      name: features
+      in: query
+      required: false
+      schema:
+        type: string
+      description: 'A comma-separated list of features. These may require a special plan that allows the feature to be used. Examples:occupant-use: Return the occupant_use metadata field; geocode-classification: Return the geocode_classification metadata field if geocode=true; geocode-precision-enhanced: Enable the PostalCode return value in geocode_precision'
