@@ -2,7 +2,15 @@ openapi: 3.1.0
 info:
   title: US-Autocomplete-API
   description: |
-    Utilize the SmartyStreets RESTful API if you want us to suggest some addresses to verify for you, you obviously still have the final say for what you end up verifying though. 
+    'Returns suggestions that are fully verified USPS addresses.'
+    'Uses fuzzy logic during searching to:'
+      - 'Allow for missing directionals and street suffixes'
+      - 'Allow substitution of street suffixes and secondary designators (E.g. ST is accepted for AVE; APT is accepted for UNIT, etc.)'
+      - 'Allow full or partial spelling of street suffixes and secondary designators (E.g. ST can be spelled as STR or STREET and still match)'
+    'Filters and preferences allow for multiple cities in a single state.'
+    'Provides filter keywords for commons state collections such as allstates.'
+    'ZIP Codes are valid filter and preference values.'
+    'Allows searching on alternate cities.'
   termsOfService: 'https://smartystreets.com/legal/terms-of-service'
   license:
     url: 'https://www.smarty.com/legal/terms-of-service'
@@ -13,21 +21,21 @@ info:
     name: Smarty Support
   version: 3.2.8
 servers:
-  - url: 'https://us-autocomplete.api.smarty.com'
+  - url: 'https://us-autocomplete-pro.api.smarty.com'
 externalDocs:
   description: Extensive documentation for the US Autocomplete Pro API
-  url: https://www.smarty.com/docs/cloud/us-autocomplete-pro-api
+  url: 'https://www.smarty.com/docs/cloud/us-autocomplete-pro-api'
 paths:
-  /suggest:
+  /lookup:
     get:
-      operationId: get-suggest
+      operationId: get-lookup
       tags:
-        - suggest
+        - lookup
       summary: Get Address Suggestions and Verify
       parameters:
-        - $ref: '#/components/parameters/prefix'
         - $ref: '#/components/parameters/Host'
         - $ref: '#/components/parameters/Referer'
+        - $ref: '#/components/parameters/search'
         - $ref: '#/components/parameters/max_results'
         - $ref: '#/components/parameters/include_only_cities'
         - $ref: '#/components/parameters/include_only_states'
@@ -57,7 +65,6 @@ paths:
           description: 'Unprocessable Entity (Unsuitable parameters): Returns errors describing what needs to be corrected.'
         '429':
           description: 'Too Many Requests: When using public embedded key authentication, we restrict the number of requests coming from a given source over too short of a time. You can avoid this error by adding your IP address as an authorized host for the embedded key in question.'
-      description: ''
 security:
   - auth-id: []
     auth-token: []
@@ -67,31 +74,6 @@ tags:
     description: Search Street Addresses
 components:
   parameters:
-    prefix:
-      name: search
-      in: query
-      description: '*Example: 123 mai* The part of the address that has alread been typed. Maximum length is 128 bytes.'
-      schema:
-        type: string
-      required: true
-    include_only_cities:
-      name: include_only_cities
-      in: query
-      description: 'Limit the results to only those cities and states listed, as well as those in include_only_states. Example: DENVER,AURORA,CO;OMAHA,NE '
-      schema:
-        type: string
-    include_only_states:
-      name: include_only_states
-      in: query
-      description: 'Limit the results to only those states listed, as well as those listed in include_only_cities. Examples: UT;ID;MT or CONTIGUOUS or ALLSTATES'
-      schema:
-        type: string
-    prefer_ratio:
-      name: prefer_ratio
-      in: query
-      description: 'Specifies the percentage of address suggestions that should be preferred and will appear at the top of the suggestion list. Expressed as an integer value, range [0, 100]. Default: 100'
-      schema:
-        type: integer
     Host:
       name: Host
       in: header
@@ -106,6 +88,13 @@ components:
       schema:
         type: string
       description: 'The Referer is required when an embedded key is used for authentication. Its value is in the form of a URL, where the host component must match a host value assigned to your embedded key. Note: Some HTTP clients such as a browser or programming language HTTP libraries will add this header automatically. However some interfaces such as cURL do not, so you may need to add it manually. Ex: Referer: https://mycoolwebsite.com'
+    search:
+      name: search
+      in: query
+      description: 'Required. The part of the address that has already been typed. Maximum character count is 32 characters.'
+      schema:
+        type: string
+      required: true
     max_results:
       name: max_results
       in: query
@@ -113,6 +102,18 @@ components:
       schema:
         type: integer
       description: 'Maximum number of address suggestions to return; range [1, 10]. Default Value: 10'
+    include_only_cities:
+      name: include_only_cities
+      in: query
+      description: 'Limit the results to only those cities and states listed, as well as those in include_only_states. IMPORTANT: This field must contain a state after the list of cities as shown in the example. Another important note is that you should NOT list a state mentioned within this field in the include_only_states field as it takes precedence over this field. Example: DENVER,AURORA,CO;OMAHA,NE '
+      schema:
+        type: string
+    include_only_states:
+      name: include_only_states
+      in: query
+      description: 'Limit the results to only those states listed, as well as those listed in include_only_cities. IMPORTANT: If a state is mentioned in the include_only_cities field, you should NOT include that same state in this field as it will take precedence. Examples: UT;ID;MT or CONTIGUOUS or ALLSTATES'
+      schema:
+        type: string
     include_only_zip_codes:
       name: include_only_zip_codes
       in: query
@@ -148,6 +149,12 @@ components:
       schema:
         type: string
       description: 'Display suggestions with the listed ZIP Codes at the top of the suggestion list. When this parameter is used, no other _cities or _states parameters can be used.  Note: When using this parameter, the prefer_geolocation parameter must NOT be set to city. '
+    prefer_ratio:
+      name: prefer_ratio
+      in: query
+      description: 'Specifies the percentage of address suggestions that should be preferred and will appear at the top of the suggestion list. Expressed as an integer value, range [0, 100]. Default: 100'
+      schema:
+        type: integer
     prefer_geolocation:
       name: prefer_geolocation
       in: query
@@ -161,13 +168,13 @@ components:
       required: false
       schema:
         type: string
-      description: Used by UI components to request a list of secondaries (up to 100) for the specified address. See Secondary Number Expansion at Smarty.com for usage information.
+      description: 'Used by UI components to request a list of secondaries (up to 100) for the specified address. See Secondary Number Expansion at Smarty.com for usage information.'
     source:
       name: source
       in: query
       schema:
         type: string
-      description: 'Include results from alternate data sources. Allowed values are: all - will include non-postal addresses in the results postal - will limit the results to postal addresses only  If this parameter is used, an additional field named source will be returned for each result, which is either postal for postal addresses, or other if the address is from an alternate data source. Default: postal'
+      description: 'Include results from alternate data sources. Allowed values are: all - will include non-postal addresses in the results; postal - will limit the results to postal addresses only  If this parameter is used, an additional field named source will be returned for each result, which is either postal for postal addresses, or other if the address is from an alternate data source. Default: postal'
   schemas:
     '200':
       title: Successful response
@@ -186,6 +193,7 @@ components:
           example: 123 Main Rd
         secondary:
           type: string
+          example: Unit 1
         city:
           type: string
           example: Abbot
