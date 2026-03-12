@@ -69,12 +69,12 @@ paths:
           description: 'Unprocessable Entity (Unsuitable parameters): Returns errors describing what needs to be corrected.'
         '429':
           description: 'Too Many Requests: When using public embedded key authentication, we restrict the number of requests coming from a given source over too short of a time. You can avoid this error by adding your IP address as an authorized host for the embedded key in question.'
-      operationId: get-lookup
+      operationId: get-lookup-id
       parameters:
         - $ref: '#/components/parameters/Host'
         - $ref: '#/components/parameters/Referer'
         - $ref: '#/components/parameters/country'
-        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/address_id'
         - $ref: '#/components/parameters/max_results'
         - $ref: '#/components/parameters/max_group_results'
         - $ref: '#/components/parameters/geolocation'
@@ -137,21 +137,27 @@ components:
       in: query
   responses:
     'detailed_200':
-      description: 'OK (success!): The response body is a JSON object with a suggestions array containing suggestions based on the supplied input parameters.'
+      description: 'OK (success!): The response body is a JSON object with a candidates array containing candidates based on the supplied input parameters.'
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/detailed_candidate'
+            type: object
+            properties:
+              candidates:
+                type: array
+                items:
+                  $ref: '#/components/schemas/detailed_candidate'
     '200':
-      description: 'OK (success!): The response body is a JSON object with a suggestions array containing suggestions based on the supplied input parameters.'
+      description: 'OK (success!): The response body is a JSON object with a candidates array containing candidates based on the supplied input parameters.'
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/candidate'
+            type: object
+            properties:
+              candidates:
+                type: array
+                items:
+                  $ref: '#/components/schemas/candidate'
   parameters:
     Host:
       name: Host
@@ -166,7 +172,7 @@ components:
       schema:
         type: string
       description: 'The Referer is required when an embedded key is used for authentication. Its value is in the form of a URL, where the host component must match a host value assigned to your embedded key. Note: Some HTTP clients such as a browser or programming language HTTP libraries will add this header automatically. However some interfaces such as cURL do not, so you may need to add it manually. Ex: Referer: https://mycoolwebsite.com'
-      required: true
+      required: false
     country:
       name: country
       in: query
@@ -181,6 +187,13 @@ components:
       schema:
         type: string
       description: 'The part of the address that has already been typed. Maximum character count is 32 characters. Required when address ID is not specified in the URL.'
+    address_id:
+      name: addressId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: 'The Address ID is used to get further information about a particular result. This value will be supplied by a previous call to the API. This parameter should not be supplied when the search query parameter is used.'
     max_results:
       name: max_results
       in: query

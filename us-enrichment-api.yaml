@@ -19,6 +19,7 @@ externalDocs:
 paths:
   '/lookup/{smartykey}/property':
     get:
+      operationId: get-lookup-smartykey-property
       tags:
         - us-enrichment
       summary: Property Lookup by Smartykey
@@ -53,6 +54,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
   '/lookup/search/property':
     get:
+      operationId: get-lookup-property
       tags:
         - us-enrichment
       summary: Property Lookup by Search Fields
@@ -91,6 +93,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
   '/lookup/{smarykey}/geo-reference/{dataset?}':
     get:
+      operationId: get-lookup-smartykey-geo
       tags:
         - us-enrichment
       summary: US Census Block and Tract Lookup by Smartykey
@@ -126,6 +129,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
   '/lookup/search/geo-reference/{dataset?}':
     get:
+      operationId: get-lookup-geo
       tags:
         - us-enrichment
       summary: US Census Block and Tract Data Lookup by Search Fields
@@ -165,6 +169,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
   '/lookup/{smartykey}/secondary':
     get:
+      operationId: get-lookup-smartykey-secondary
       tags:
         - us-enrichment
       summary: US Secondary Data Lookup by Smartykey
@@ -199,6 +204,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
   '/lookup/search/secondary':
     get:
+      operationId: get-lookup-secondary
       tags:
         - us-enrichment
       summary: US Secondary Data Lookup by Search Fields
@@ -237,6 +243,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
   '/lookup/{smartykey}/secondary/count':
     get:
+      operationId: get-lookup-smartykey-secondary-count
       tags:
         - us-enrichment
       summary: US Secondary Data Lookup by Smartykey
@@ -271,6 +278,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
   '/lookup/search/secondary/count':
     get:
+      operationId: get-lookup-secondary-count
       tags:
         - us-enrichment
       summary: US Secondary Data Lookup by Search Fields
